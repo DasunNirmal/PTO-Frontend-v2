@@ -185,7 +185,7 @@ $(document).ready(function(){
         $("#items-table-tb").empty();
 
         $.ajax({
-            url: 'http://localhost:8081/PTOBackend/itemController',
+            url: 'http://localhost:8081/PTOBackendv2/api/v2/itemController',
             type: 'GET',
             dataType: 'json',
             success: function(res) {
@@ -256,10 +256,10 @@ $(document).ready(function(){
         console.log(itemJSON);
 
         $.ajax({
-            url: 'http://localhost:8081/PTOBackend/itemController',
+            url: 'http://localhost:8081/PTOBackendv2/api/v2/itemController',
             type: 'POST',
             data: itemJSON,
-            headers: {'Content-Type': 'application/json'},
+            contentType: 'application/json',
             success: (res) => {
                 console.log(JSON.stringify(res));
                 loadItemTable();
@@ -287,12 +287,12 @@ $(document).ready(function(){
         }
 
         $.ajax({
-            url: 'http://localhost:8081/PTOBackend/itemController?itemID=' + itemID,
+            url: 'http://localhost:8081/PTOBackendv2/api/v2/itemController/' + itemID,
             type: 'DELETE',
             success: (res) => {
                 console.log(JSON.stringify(res))
-                console.log("Item Deleted");
                 loadItemTable();
+                console.log("Item Deleted");
             },
             error: (res) => {
                 console.error(res);
@@ -327,10 +327,10 @@ $(document).ready(function(){
         console.log(itemJSON);
 
         $.ajax({
-            url: 'http://localhost:8081/PTOBackend/itemController?itemID=' + itemID,
+            url: 'http://localhost:8081/PTOBackendv2/api/v2/itemController/' + itemID,
             type: 'PATCH',
             data: itemJSON,
-            headers: {'Content-Type': 'application/json'},
+            contentType: 'application/json',
             success: (res) => {
                 console.log(JSON.stringify(res));
                 console.log("Item Updated");
@@ -351,7 +351,7 @@ $(document).ready(function(){
         const itemID = query.toLowerCase();
 
         $.ajax({
-            url: 'http://localhost:8081/PTOBackend/itemController?itemID=' + itemID,
+            url: 'http://localhost:8081/PTOBackendv2/api/v2/itemController?itemID=' + itemID,
             type: 'GET',
             dataType: 'json',
             success: (response) => {
