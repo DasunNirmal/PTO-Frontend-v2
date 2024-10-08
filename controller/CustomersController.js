@@ -117,6 +117,7 @@ $(document).ready(function(){
         $('#txtName').val("");
         $('#txtAddress').val("");
         $('#txtPhoneNumber').val("");
+        $('#txtSearch-customers').val("");
     }
 
     function emptyPlaceHolder() {
@@ -186,7 +187,7 @@ $(document).ready(function(){
         $("#customers-table-tb").empty();
 
         $.ajax({
-            url: 'http://localhost:8081/PTOBackend/customerController',
+            url: 'http://localhost:8081/PTOBackendv2/api/v2/customerController',
             type: 'GET',
             dataType: 'json',
             success: function(res) {
@@ -258,10 +259,10 @@ $(document).ready(function(){
         console.log(customerJSON);
 
         $.ajax({
-            url: 'http://localhost:8081/PTOBackend/customerController',
+            url: 'http://localhost:8081/PTOBackendv2/api/v2/customerController',
             type: 'POST',
             data: customerJSON,
-            headers: {'Content-Type': 'application/json'},
+            contentType: 'application/json',
             success: (res) => {
                 console.log(JSON.stringify(res));
                 loadCustomerTable();
@@ -274,7 +275,6 @@ $(document).ready(function(){
         defaultBorderColor();
         emptyPlaceHolder();
         clearAll();
-        /*totalCustomers();*/
     });
 
     $('#btnDelete-customer').on('click',() => {
@@ -290,7 +290,7 @@ $(document).ready(function(){
         }
 
         $.ajax({
-            url: 'http://localhost:8081/PTOBackend/customerController?customerID=' + customerID,
+            url: 'http://localhost:8081/PTOBackendv2/api/v2/customerController/' + customerID,
             type: 'DELETE',
             success: (res) => {
                 console.log(JSON.stringify(res));
@@ -332,10 +332,10 @@ $(document).ready(function(){
         console.log(customerJSON);
 
         $.ajax({
-            url: 'http://localhost:8081/PTOBackend/customerController?customerID=' + customerID,
+            url: 'http://localhost:8081/PTOBackendv2/api/v2/customerController/' + customerID,
             type: 'PATCH',
             data: customerJSON,
-            headers: {'Content-Type': 'application/json'},
+            contentType: 'application/json',
             success: (res) => {
                 console.log(JSON.stringify(res));
                 console.log("Customer updated");
@@ -349,27 +349,36 @@ $(document).ready(function(){
 
         defaultBorderColor();
         emptyPlaceHolder();
-        loadCustomerTable();
         clearAll();
-        /*totalCustomers();*/
     });
 
     function searchCustomersByID(query) {
         const customerID = query.toLowerCase();
 
         $.ajax({
-            url: 'http://localhost:8081/PTOBackend/customerController?customerID=' + customerID,
+            url: 'http://localhost:8081/PTOBackendv2/api/v2/customerController?customerID=' + customerID,
             type: 'GET',
             dataType: 'json',
             success: (response) => {
                 console.log('Full response:', response);
-                var customerDTO = response;
-                console.log('Customer retrieved successfully:', customerDTO);
+                for (let i = 0; i < response.length; i++) {
+                    if (customerID === response[i].customerID) {
+                        var customerDTO = response[i]; // Set customerDTO to the matching customer
+                        break; // Exit the loop once a match is found
+                    }
+                }
 
-                $('#txtCustomerID').val(customerDTO.customerID);
-                $('#txtName').val(customerDTO.customerName);
-                $('#txtAddress').val(customerDTO.customerAddress);
-                $('#txtPhoneNumber').val(customerDTO.customerPhoneNumber);
+                if (customerDTO) {
+                    console.log('Customer retrieved successfully:', customerDTO);
+
+                    $('#txtCustomerID').val(customerDTO.customerID);
+                    $('#txtName').val(customerDTO.customerName);
+                    $('#txtAddress').val(customerDTO.customerAddress);
+                    $('#txtPhoneNumber').val(customerDTO.customerPhoneNumber);
+                    $('#txtSearch-customers').val("");
+                } else {
+                    console.error('Customer not found');
+                }
             },
             error: function(error) {
                 console.error('Error searching customer:', error);
@@ -382,18 +391,29 @@ $(document).ready(function(){
         const customerPhoneNumber = searchQuery.toLowerCase();
 
         $.ajax({
-            url: 'http://localhost:8081/PTOBackend/customerController?customerPhoneNumber=' + customerPhoneNumber,
+            url: 'http://localhost:8081/PTOBackendv2/api/v2/customerController?customerPhoneNumber=' + customerPhoneNumber,
             type: 'GET',
             dataType: 'json',
             success: (response) => {
                 console.log('Full response:', response);
-                var customerDTO = response;
-                console.log('Customer retrieved successfully:', customerDTO);
+                for (let i = 0; i < response.length; i++) {
+                    if (customerPhoneNumber === response[i].customerPhoneNumber) {
+                        var customerDTO = response[i]; // Set customerDTO to the matching customer
+                        break; // Exit the loop once a match is found
+                    }
+                }
 
-                $('#txtCustomerID').val(customerDTO.customerID);
-                $('#txtName').val(customerDTO.customerName);
-                $('#txtAddress').val(customerDTO.customerAddress);
-                $('#txtPhoneNumber').val(customerDTO.customerPhoneNumber);
+                if (customerDTO) {
+                    console.log('Customer retrieved successfully:', customerDTO);
+
+                    $('#txtCustomerID').val(customerDTO.customerID);
+                    $('#txtName').val(customerDTO.customerName);
+                    $('#txtAddress').val(customerDTO.customerAddress);
+                    $('#txtPhoneNumber').val(customerDTO.customerPhoneNumber);
+                    $('#txtSearch-customers').val("");
+                } else {
+                    console.error('Customer not found');
+                }
             },
             error: function(error) {
                 console.error('Error searching customer:', error);
