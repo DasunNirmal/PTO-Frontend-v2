@@ -111,6 +111,7 @@ $(document).ready(function(){
         $('#txtItemName').val("");
         $('#txtPrice').val("");
         $('#txtQuantity').val("");
+        $('#txtSearch-items').val("");
     }
 
     function emptyPlaceHolder() {
@@ -356,13 +357,23 @@ $(document).ready(function(){
             dataType: 'json',
             success: (response) => {
                 console.log('Full response:', response);
-                var itemDTO = response;
-                console.log('Item retrieved successfully:', itemDTO);
+                for (let i = 0; i < response.length; i++) {
+                    if (itemID === response[i].itemID) {
+                        var itemDTO = response[i]; // Set itemDTO to the matching item
+                        break; // Exit the loop once a match is found
+                    }
+                }
 
-                $('#txtItemID').val(itemDTO.itemID);
-                $('#txtItemName').val(itemDTO.itemName);
-                $('#txtPrice').val(itemDTO.itemPrice);
-                $('#txtQuantity').val(itemDTO.itemQty);
+                if (itemDTO) {
+                    console.log('Item retrieved successfully:', itemDTO);
+                    $('#txtItemID').val(itemDTO.itemID);
+                    $('#txtItemName').val(itemDTO.itemName);
+                    $('#txtPrice').val(itemDTO.itemPrice);
+                    $('#txtQuantity').val(itemDTO.itemQty);
+                    $('#txtSearch-items').val("");
+                } else {
+                    console.error('Item not found');
+                }
             },
             error: function(error) {
                 console.error('Error searching item:', error);
