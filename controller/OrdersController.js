@@ -176,18 +176,60 @@ $(document).ready(function(){
         const customerID = query.toLowerCase();
 
         $.ajax({
-            url: 'http://localhost:8081/PTOBackend/customerController?customerID=' + customerID,
+            url: 'http://localhost:8081/PTOBackendv2/api/v2/customerController?customerID=' + customerID,
             type: 'GET',
             dataType: 'json',
             success: (response) => {
                 console.log('Full response:', response);
-                var customerDTO = response;
-                console.log('Customer retrieved successfully:', customerDTO);
+                for (let i = 0; i < response.length; i++) {
+                    if (customerID === response[i].customerID) {
+                        var customerDTO = response[i]; // Set customerDTO to the matching customer
+                        break; // Exit the loop once a match is found
+                    }
+                }
 
-                $('#txtCustomerId-orders').val(customerDTO.customerID);
-                $('#txtCustomerName-orders').val(customerDTO.customerName);
-                $('#txtPhoneNumber-orders').val(customerDTO.customerPhoneNumber);
-                $('#txtSearch-02').val("");
+                if (customerDTO) {
+                    console.log('Customer retrieved successfully:', customerDTO);
+                    $('#txtCustomerId-orders').val(customerDTO.customerID);
+                    $('#txtCustomerName-orders').val(customerDTO.customerName);
+                    $('#txtPhoneNumber-orders').val(customerDTO.customerPhoneNumber);
+                    $('#txtSearch-02').val("");
+
+                } else {
+                    console.error('Customer not found');
+                }
+            },
+            error: function(error) {
+                console.error('Error searching customer:', error);
+            }
+        });
+    }
+
+    function searchCustomersByPhoneNumber(searchQuery) {
+        const customerPhoneNumber = searchQuery.toLowerCase();
+
+        $.ajax({
+            url: 'http://localhost:8081/PTOBackendv2/api/v2/customerController?customerPhoneNumber=' + customerPhoneNumber,
+            type: 'GET',
+            dataType: 'json',
+            success: (response) => {
+                console.log('Full response:', response);
+                for (let i = 0; i < response.length; i++) {
+                    if (customerPhoneNumber === response[i].customerPhoneNumber) {
+                        var customerDTO = response[i]; // Set customerDTO to the matching customer
+                        break; // Exit the loop once a match is found
+                    }
+                }
+
+                if (customerDTO) {
+                    console.log('Customer retrieved successfully:', customerDTO);
+                    $('#txtCustomerId-orders').val(customerDTO.customerID);
+                    $('#txtCustomerName-orders').val(customerDTO.customerName);
+                    $('#txtPhoneNumber-orders').val(customerDTO.customerPhoneNumber);
+                    $('#txtSearch-02').val("");
+                } else {
+                    console.error('Customer not found');
+                }
             },
             error: function(error) {
                 console.error('Error searching customer:', error);
@@ -197,7 +239,11 @@ $(document).ready(function(){
 
     $('#search-customers-orders').on('click', function() {
         const searchQuery = $('#txtSearch-02').val();
-        searchCustomers(searchQuery);
+        if (isValidPhoneNumber.test(searchQuery)) {
+            searchCustomersByPhoneNumber(searchQuery);
+        } else {
+            searchCustomers(searchQuery);
+        }
     });
 
     /*Search Items*/
@@ -205,19 +251,28 @@ $(document).ready(function(){
         const itemID = query.toLowerCase();
 
         $.ajax({
-            url: 'http://localhost:8081/PTOBackend/itemController?itemID=' + itemID,
+            url: 'http://localhost:8081/PTOBackendv2/api/v2/itemController?itemID=' + itemID,
             type: 'GET',
             dataType: 'json',
             success: (response) => {
                 console.log('Full response:', response);
-                var itemDTO = response;
-                console.log('Item retrieved successfully:', itemDTO);
+                for (let i = 0; i < response.length; i++) {
+                    if (itemID === response[i].itemID) {
+                        var itemDTO = response[i]; // Set itemDTO to the matching item
+                        break; // Exit the loop once a match is found
+                    }
+                }
 
-                $('#txtItemId-orders').val(itemDTO.itemID);
-                $('#txtItemName-orders').val(itemDTO.itemName);
-                $('#txtUnitPrice-orders').val(itemDTO.itemPrice);
-                $('#txtQtyOnHand-orders').val(itemDTO.itemQty);
-                $('#txtSearch-01').val("");
+                if (itemDTO) {
+                    console.log('Item retrieved successfully:', itemDTO);
+                    $('#txtItemId-orders').val(itemDTO.itemID);
+                    $('#txtItemName-orders').val(itemDTO.itemName);
+                    $('#txtUnitPrice-orders').val(itemDTO.itemPrice);
+                    $('#txtQtyOnHand-orders').val(itemDTO.itemQty);
+                    $('#txtSearch-01').val("");
+                } else {
+                    console.error('Item not found');
+                }
             },
             error: function(error) {
                 console.error('Error searching item:', error);
