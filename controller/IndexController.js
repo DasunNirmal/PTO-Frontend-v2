@@ -111,7 +111,7 @@ function loadOrderTableHome() {
     $('#orders-summary').empty();
     let totalOfSales = 0;
     $.ajax({
-        url: 'http://localhost:8081/PTOBackend/orderController',
+        url: 'http://localhost:8081/PTOBackendv2/api/v2/orderController',
         type: 'GET',
         dataType: 'json',
         success: function(res) {
