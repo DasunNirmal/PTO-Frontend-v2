@@ -410,7 +410,7 @@ $(document).ready(function(){
         $("#orders-table-tb").empty();
 
         $.ajax({
-            url: 'http://localhost:8081/PTOBackend/orderController',
+            url: 'http://localhost:8081/PTOBackendv2/api/v2/orderController',
             type: 'GET',
             dataType: 'json',
             success: function(res) {
@@ -515,7 +515,7 @@ $(document).ready(function(){
         console.log(orderJSON);
 
         $.ajax({
-            url: 'http://localhost:8081/PTOBackend/orderController',
+            url: 'http://localhost:8081/PTOBackendv2/api/v2/orderController',
             type: 'POST',
             data: orderJSON,
             headers: {'Content-Type': 'application/json'},
@@ -535,7 +535,7 @@ $(document).ready(function(){
         emptyPlaceHolder();
         defaultBorderColor();
         totalTagUpdate();
-        loadOrderTableHome();
+        /*loadOrderTableHome();*/
         ClearAll();
     });
 
@@ -562,7 +562,7 @@ $(document).ready(function(){
 
         console.log("Order ID: " + orderID, "Item ID: " + itemID, "Order Qty: " + orderQty);
         $.ajax({
-            url: 'http://localhost:8081/PTOBackend/orderController?orderID=' + orderID + '&itemID=' + itemID + '&orderQty=' + orderQty,
+            url: 'http://localhost:8081/PTOBackendv2/api/v2/orderController/' + orderID + '/' + itemID + '/' + orderQty,
             type: 'DELETE',
             success: (res) => {
                 console.log(JSON.stringify(res));
@@ -600,25 +600,29 @@ $(document).ready(function(){
         }
 
         $.ajax({
-            url: 'http://localhost:8081/PTOBackend/orderController?orderID=' + orderID,
+            url: 'http://localhost:8081/PTOBackendv2/api/v2/orderController?orderID=' + orderID,
             type: 'GET',
             dataType: 'json',
             success: (response) => {
-                console.log('Full response:', response);
-                var oldOrderQty = parseInt(response.orderQty);
-                console.log('Old Order Qty retrieved successfully:',oldOrderQty);
+                if (Array.isArray(response) && response.length > 0) {
+                    var order = response[0]; /*Access the first object in the array*/
 
-                // Correct qtyOnHand calculation
-                if (oldOrderQty > newOrderQty) {
-                    // Restoring more stock as the order quantity is decreased
-                    qtyOnHand += (oldOrderQty - newOrderQty);
-                } else if (oldOrderQty < newOrderQty) {
-                    // Reducing stock as the order quantity is increased
-                    qtyOnHand -= (newOrderQty - oldOrderQty);
+                    /*Check if orderQty is valid and can be parsed*/
+                    var oldOrderQty = parseInt(order.orderQty);
+                    if (isNaN(oldOrderQty)) {
+                        console.error('Invalid orderQty:', order.orderQty);
+                    } else {
+                        console.log('Old Order Qty retrieved successfully:', oldOrderQty);
+
+
+                        if (oldOrderQty > newOrderQty) {
+                            qtyOnHand += (oldOrderQty - newOrderQty);
+                        } else if (oldOrderQty < newOrderQty) {
+                            qtyOnHand -= (newOrderQty - oldOrderQty);
+                        }
+                        console.log('Updated qtyOnHand:', qtyOnHand);
+                    }
                 }
-
-                console.log(qtyOnHand);
-
                 const orderData = {
                     orderID: orderID,
                     orderDate: orderDate,
@@ -635,7 +639,7 @@ $(document).ready(function(){
                 console.log(orderJSON);
 
                 $.ajax({
-                    url: 'http://localhost:8081/PTOBackend/orderController?orderID=' + orderID + '&itemID=' + itemID + '&qtyOnHand=' + qtyOnHand,
+                    url: 'http://localhost:8081/PTOBackendv2/api/v2/orderController/' + orderID + '/' + itemID + '/' + qtyOnHand,
                     type: 'PATCH',
                     data: orderJSON,
                     headers: {'Content-Type': 'application/json'},
@@ -665,24 +669,32 @@ $(document).ready(function(){
         const orderID = query.toLowerCase();
 
         $.ajax({
-            url: 'http://localhost:8081/PTOBackend/orderController?orderID=' + orderID,
+            url: 'http://localhost:8081/PTOBackendv2/api/v2/orderController?orderID=' + orderID,
             type: 'GET',
             dataType: 'json',
             success: (res)=> {
-                console.log(res); // Log the response to verify the data format
-                var order = res;
-                console.log('Order:', res);
+                console.log('Full response:', res);
+                for (let i = 0; i < res.length; i++) {
+                    if (orderID === res[i].orderID) {
+                        var order = res[i]; // Set itemDTO to the matching item
+                        break; // Exit the loop once a match is found
+                    }
+                }
 
-                $('#txtOrderId').val(order.orderID);
-                $('#txtItemId-orders').val(order.itemID);
-                $('#txtItemName-orders').val(order.itemName);
-                $('#txtUnitPrice-orders').val(order.itemPrice);
-                $('#txtQtyOnHand-orders').val(order.itemQty);
-                $('#txtOrderQuantity').val(order.orderQty);
-                $('#txtOrderDate').val(order.orderDate);
-                $('#txtCustomerId-orders').val(order.customerID);
-                $('#price-tag').text("Rs : "+order.totalPrice+"/=");
-                searchCustomers(order.customerID);
+                if (order) {
+                    $('#txtOrderId').val(order.orderID);
+                    $('#txtItemId-orders').val(order.itemID);
+                    $('#txtItemName-orders').val(order.itemName);
+                    $('#txtUnitPrice-orders').val(order.itemPrice);
+                    $('#txtQtyOnHand-orders').val(order.itemQty);
+                    $('#txtOrderQuantity').val(order.orderQty);
+                    $('#txtOrderDate').val(order.orderDate);
+                    $('#txtCustomerId-orders').val(order.customerID);
+                    $('#price-tag').text("Rs : "+order.totalPrice+"/=");
+                    searchCustomers(order.customerID);
+                } else {
+                    console.error("Order Not Found");
+                }
             },
             error: function(res) {
                 console.error('Error loading Order data:', res);
